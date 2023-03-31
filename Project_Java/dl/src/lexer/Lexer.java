@@ -95,11 +95,23 @@ public class Lexer {
             }
             case '>' -> {
                 nextChar();
+                if (peek == '=') {
+                    nextChar();
+                    return new Token(Tag.GE, ">=");
+                }
                 return new Token(Tag.GT, ">");
             }
             case ';' -> {
                 nextChar();
                 return new Token(Tag.SEMI, ";");
+            }
+            case '(' -> {
+                nextChar();
+                return new Token(Tag.LPAR, "(");
+            }
+            case ')' -> {
+                nextChar();
+                return new Token(Tag.RPAR, ")");
             }
             case EOF_CHAR -> {
                 nextChar();

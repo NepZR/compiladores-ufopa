@@ -8,7 +8,7 @@ import java.io.File;
 
 public class DL {
     public static void main(String[] args) {
-        Lexer l = new Lexer(new File("prog.dl"));
+        Lexer l = new Lexer(new File("../programs/prog.dl"));
         Token t = l.nextToken();
 
         while (t.tag() != Tag.EOF) {

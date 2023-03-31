@@ -6,8 +6,9 @@ public enum Tag {
     ASSIGN("ASSIGN"),
     SUM("SUM"), SUB("SUB"), MUL("MUL"),
     OR("OR"),
-    LT("LT"), LE("LE"), GT("GT"),
+    LT("LT"), LE("LE"), GT("GT"), GE("GE"),
     SEMI("SEMI"),
+    LPAR("LPAR"), RPAR("RPAR"),
     ID("ID"),
     LIT_INT("LIT_INT"),
     EOF("EOF"), UNK("UNK");
