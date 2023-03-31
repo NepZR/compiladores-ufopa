@@ -1,5 +1,6 @@
-# JetBrains
+# JetBrains and VS Code
 .idea/
+.vscode/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
