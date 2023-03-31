@@ -1,4 +1,4 @@
-from lexer.Tag import Tag
+from .Tag import Tag
 
 
 class Token:

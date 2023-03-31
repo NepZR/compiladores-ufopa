@@ -1,5 +1,5 @@
-from Tag import Tag
-from Token import Token
+from .Tag import Tag
+from .Token import Token
 
 
 class Lexer:
