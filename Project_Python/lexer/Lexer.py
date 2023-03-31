@@ -68,11 +68,20 @@ class Lexer:
             self._next_char()
             return Token(Tag.LT, "<")
         elif self.peek == ">":
+            if self.peek == "=":
+                self._next_char()
+                return Token(Tag.GE, ">=")
             self._next_char()
             return Token(Tag.GT, ">")
         elif self.peek == ";":
             self._next_char()
             return Token(Tag.SEMI, ";")
+        elif self.peek == "(":
+            self._next_char()
+            return Token(Tag.LPAR, "(")
+        elif self.peek == ")":
+            self._next_char()
+            return Token(Tag.RPAR, ")")
         elif self.peek == self.EOF_CHAR:
             self._next_char()
             return Token(Tag.EOF, "")
