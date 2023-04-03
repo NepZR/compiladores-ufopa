@@ -78,10 +78,10 @@ class Lexer:
             return Token(Tag.SEMI, ";")
         elif self.peek == "(":
             self._next_char()
-            return Token(Tag.LPAR, "(")
+            return Token(Tag.LPAREN, "(")
         elif self.peek == ")":
             self._next_char()
-            return Token(Tag.RPAR, ")")
+            return Token(Tag.RPAREN, ")")
         elif self.peek == self.EOF_CHAR:
             self._next_char()
             return Token(Tag.EOF, "")
