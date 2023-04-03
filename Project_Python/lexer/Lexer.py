@@ -11,6 +11,13 @@ class Lexer:
             "programa": Tag.PROGRAM,
             "inicio": Tag.BEGIN,
             "fim": Tag.END,
+            "inteiro": Tag.INT,
+            "real": Tag.REAL,
+            "booleano": Tag.BOOL,
+            "verdadeiro": Tag.TRUE,
+            "falso": Tag.FALSE,
+            "leia": Tag.READ,
+            "escreva": Tag.WRITE
         }
         with open(file, "rb") as f:
             self.reader = f.read().decode("UTF-8")
