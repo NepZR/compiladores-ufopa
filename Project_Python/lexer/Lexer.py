@@ -46,9 +46,18 @@ class Lexer:
         while self._is_whitespace(self.peek):
             self._next_char()
 
-        if self.peek == "=":
+        if self.peek == "!":
+            self._next_char()
+            if self.peek == "=":
+                self._next_char()
+                return Token(Tag.NE, "!=")
+            return Token(Tag.NOT, "!")
+        elif self.peek == "=":
             self._next_char()
             return Token(Tag.ASSIGN, "=")
+        elif self.peek == "&":
+            self._next_char()
+            return Token(Tag.AND, "&")
         elif self.peek == "+":
             self._next_char()
             return Token(Tag.SUM, "+")
@@ -73,6 +82,9 @@ class Lexer:
                 self._next_char()
                 return Token(Tag.GE, ">=")
             return Token(Tag.GT, ">")
+        elif self.peek == ",":
+            self._next_char()
+            return Token(Tag.COMMA, ",")
         elif self.peek == ";":
             self._next_char()
             return Token(Tag.SEMI, ";")
@@ -91,6 +103,18 @@ class Lexer:
                 while self.peek.isdigit():
                     num += self.peek
                     self._next_char()
+
+                if self.peek == ".":
+                    num += self.peek
+                    self._next_char()
+                    if not self.peek.isdigit():
+                        num += str(0)
+                    else:
+                        while self.peek.isdigit():
+                            num += self.peek
+                            self._next_char()
+
+                    return Token(Tag.LIT_REAL, num)
 
                 return Token(Tag.LIT_INT, num)
             elif self._is_id_start(self.peek):
