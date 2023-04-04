@@ -78,7 +78,7 @@ class Lexer:
             self._next_char()
             if self.peek == "/":
                 self._next_char()
-                comment = ""
+                comment = "//"
                 while not self._is_whitespace(self.peek, parse_comment=True):
                     comment += self.peek
                     self._next_char()
