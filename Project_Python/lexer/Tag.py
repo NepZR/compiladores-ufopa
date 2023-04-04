@@ -12,7 +12,7 @@ class Tag(Enum):
     MUL = "MUL"
     DIV = "DIV"
     OR = "OR"
-    AND = "LAND"
+    AND = "AND"
     NOT = "NOT"
     NE = "NE"
     LT = "LT"
