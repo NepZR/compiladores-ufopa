@@ -35,8 +35,8 @@ class Lexer:
             return self.peek
 
     @staticmethod
-    def _is_whitespace(character: str) -> bool:
-        whitespaces = (" ", "\n", "\t", "\r")
+    def _is_whitespace(character: str, parse_comment: bool = False) -> bool:
+        whitespaces = ("\n", "\t", "\r") if parse_comment else (" ", "\n", "\t", "\r")
         if character in whitespaces:
             return True
         else:
@@ -74,6 +74,18 @@ class Lexer:
         elif self.peek == "*":
             self._next_char()
             return Token(Tag.MUL, "=")
+        elif self.peek == "/":
+            self._next_char()
+            if self.peek == "/":
+                self._next_char()
+                comment = ""
+                while not self._is_whitespace(self.peek, parse_comment=True):
+                    comment += self.peek
+                    self._next_char()
+
+                return Token(Tag.COMMENT, comment)
+
+            return Token(Tag.DIV, "/")
         elif self.peek == "|":
             self._next_char()
             return Token(Tag.OR, "|")
