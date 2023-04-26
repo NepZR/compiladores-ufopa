@@ -5,4 +5,10 @@ programa maior_num inicio
   b = 3;
   se (a > b) escreva(a);
   se (a <= b) escreva(b);
+  se (a) b = 2;
+  se (a > 0) c = (a + b);
+  se (a < 0) inicio
+    a = a + 1;
+    b = b - 1;
+  fim;
 fim.
