@@ -5,7 +5,8 @@ from .Token import Token
 class Lexer:
     def __init__(self, file: str) -> None:
         self.EOF_CHAR = str(-1)
-        self.line_index = 0
+        self.chr_index = 0
+        self.line_index = 1
         self.peek = " "
         self.keywords = {
             "programa": Tag.PROGRAM,
@@ -16,6 +17,7 @@ class Lexer:
             "booleano": Tag.BOOL,
             "verdadeiro": Tag.TRUE,
             "falso": Tag.FALSE,
+            "se": Tag.IF,
             "leia": Tag.READ,
             "escreva": Tag.WRITE
         }
@@ -25,18 +27,23 @@ class Lexer:
     def line(self) -> int:
         return self.line_index
 
+    def chr_idx(self) -> int:
+        return self.chr_index
+
     def _next_char(self) -> str:
         try:
-            self.peek = str(self.reader[self.line()])
-            self.line_index += 1
+            self.peek = str(self.reader[self.chr_idx()])
+            self.chr_index += 1
             return self.peek
         except IndexError:
             self.peek = str(-1)
             return self.peek
 
-    @staticmethod
-    def _is_whitespace(character: str, parse_comment: bool = False) -> bool:
+    def _is_whitespace(self, character: str, parse_comment: bool = False) -> bool:
         whitespaces = ("\n", "\t", "\r") if parse_comment else (" ", "\n", "\t", "\r")
+        if character == "\n":
+            self.line_index += 1
+
         if character in whitespaces:
             return True
         else:
@@ -107,6 +114,9 @@ class Lexer:
         elif self.peek == ";":
             self._next_char()
             return Token(Tag.SEMI, ";")
+        elif self.peek == ".":
+            self._next_char()
+            return Token(Tag.DOT, ".")
         elif self.peek == "(":
             self._next_char()
             return Token(Tag.LPAREN, "(")
