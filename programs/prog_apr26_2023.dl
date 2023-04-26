@@ -1,0 +1,8 @@
+programa maior_num inicio
+  inteiro a;
+  inteiro b;
+  a = 2;
+  b = 3;
+  se (a > b) escreva(a);
+  se (a <= b) escreva(b);
+fim.
