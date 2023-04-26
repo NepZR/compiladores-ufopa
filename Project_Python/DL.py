@@ -1,12 +1,12 @@
 import os.path
+from datetime import datetime
 
-from lexer.Tag import Tag
+from parser.Parser import Parser
 from lexer.Lexer import Lexer
 
 if __name__ == "__main__":
-    lexer = Lexer(file=os.path.abspath("../programs/prog.dl"))
-    t = lexer.next_token()
+    lexer = Lexer(file=os.path.abspath("../programs/prog_apr26_2023.dl"))
+    parser = Parser(lex=lexer)
 
-    while t.get_tag() != Tag.EOF:
-        print(t)
-        t = lexer.next_token()
+    parser.parse()
+    print(f"{datetime.utcnow()} - Execução finalizada.")
