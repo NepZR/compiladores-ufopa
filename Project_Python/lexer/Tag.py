@@ -7,6 +7,7 @@ class Tag(Enum):
     END = "END"
     ASSIGN = "ASSIGN"
     ID = "ID"
+    IF = "IF"
     SUM = "SUM"
     SUB = "SUB"
     MUL = "MUL"
@@ -35,3 +36,5 @@ class Tag(Enum):
     LIT_REAL = "LIT_REAL"
     EOF = "EOF"
     UNK = "UNK"
+    DOT = "DOT"
+    TEMP = "TEMP"
