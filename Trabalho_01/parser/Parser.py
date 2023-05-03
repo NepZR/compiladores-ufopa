@@ -1,6 +1,6 @@
 from sys import exit
 
-from parser.IParser import IParser
+from IParser import IParser
 
 
 class Parser(IParser):
