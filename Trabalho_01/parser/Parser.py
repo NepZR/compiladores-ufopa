@@ -4,36 +4,25 @@ from parser.IParser import IParser
 
 
 class Parser(IParser):
-    def __init__(self, file: str) -> None:
+    def __init__(self, input_str: str) -> None:
         super().__init__()
-        with open(file, "rb") as f:
-            self.reader = f.read().decode("UTF-8")
 
-        self.line_idx = 1
-        self.col_idx = 0
+        self.input_str = input_str
         self.chr_idx = 0
         self.peek = " "
 
     def lookahead(self) -> str:
         try:
-            self.peek = str(self.reader[self.chr_idx])
+            self.peek = str(self.input_str[self.chr_idx])
             return self.peek
         except IndexError:
             self.peek = self.EOF
             return self.EOF
 
     def next(self) -> str:
-        whitespaces = (" ", "\n", "\t", "\r")
         self.chr_idx += 1
-        self.col_idx += 1
-
-        while self.lookahead() in whitespaces:
-            if self.peek == "\n":
-                self.line_idx += 1
-                self.col_idx = 0
-
+        while self.lookahead() == " ":
             self.chr_idx += 1
-            self.col_idx += 1
             continue
 
         return self.lookahead()
@@ -42,11 +31,10 @@ class Parser(IParser):
         if self.lookahead() == c:
             self.next()
         else:
-            self.error(msg="Símbolo inválido")
+            self.error(msg="Símbolo inesperado")
 
     def error(self, msg: str) -> None:
-        print(f"Syntax Error on {self.line_idx}:{self.col_idx}: {msg}.")
-        print(f"Lookahead Data >> {self.lookahead()}")
+        print(f"\n\033[91mSyntax Error on Column {self.chr_idx}: {msg}.")
         exit(1)
 
     def parse(self) -> None:
@@ -152,11 +140,10 @@ class Parser(IParser):
 
 
 if __name__ == "__main__":
-    import os
     from datetime import datetime
 
-    file_path = os.path.abspath("../programs/prog.dl")
-    parser = Parser(file=file_path)
+    grammar_str = input(f"Test String: ")
+    parser = Parser(input_str=grammar_str)
 
     parser.parse()
-    print(f"{datetime.utcnow()} - Execução finalizada.")
+    print(f"\n\033[92mFinished without errors at {datetime.now()}.\n> The input \"{grammar_str}\" is valid.")
