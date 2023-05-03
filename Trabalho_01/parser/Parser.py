@@ -88,35 +88,15 @@ class Parser(IParser):
 
     def expr(self) -> None:
         self.term()
-        self._expr()
-
-    def _expr(self) -> None:
-        if self.lookahead() == "+":
-            self.match("+")
+        while self.lookahead() in ("+", "-"):
+            self.next()
             self.term()
-            self._expr()
-        elif self.lookahead() == "-":
-            self.match("-")
-            self.term()
-            self._expr()
-        else:
-            pass
 
     def term(self) -> None:
         self.unary()
-        self._term()
-
-    def _term(self) -> None:
-        if self.lookahead() == "*":
-            self.match("*")
+        while self.lookahead() in ("*", "/"):
+            self.next()
             self.unary()
-            self._term()
-        elif self.lookahead() == "/":
-            self.match("/")
-            self.unary()
-            self._term()
-        else:
-            pass
 
     def unary(self) -> None:
         if self.lookahead() == "+":
