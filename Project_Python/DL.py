@@ -9,4 +9,6 @@ if __name__ == "__main__":
     parser = Parser(lex=lexer)
 
     parser.parse()
+
+    print(parser.parse_tree())
     print(f"{datetime.utcnow()} - Execução finalizada.")
