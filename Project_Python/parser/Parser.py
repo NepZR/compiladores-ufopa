@@ -2,11 +2,15 @@ from lexer.Tag import Tag
 from lexer.Token import Token
 from lexer.Lexer import Lexer
 
+from inter.stmt import Stmt, Assign, Block, Decl, Program, Write, If
+from inter.expr import Expr, Literal, Rel, Id, Bin, Or
+
 
 class Parser:
     def __init__(self, lex: Lexer) -> None:
         self._lexer = lex
         self._look = None
+        self._root = None
         self._move()
 
     def _move(self) -> Token:
@@ -25,93 +29,130 @@ class Parser:
         self._error(err="Símbolo inesperado")
         return None
 
-    def parse(self) -> None:
-        self._program()
+    def parse_tree(self) -> str:
+        return self._root.str_tree()
 
-    def _program(self) -> None:
+    def parse(self) -> None:
+        self._root = self._program()
+
+    def _program(self) -> Program:
         self._match(Tag.PROGRAM)
-        self._match(Tag.ID)
-        self._block()
+        token_id = self._match(Tag.ID)
+        block = self._block()
+
         self._match(Tag.DOT)
         self._match(Tag.EOF)
 
-    def _block(self) -> None:
+        return Program(_id=token_id, _block=block)
+
+    def _block(self) -> Stmt:
+        block = Block()
+
         self._match(Tag.BEGIN)
         while self._look.tag != Tag.END:
-            self._stmt()
+            block.add_stmt(self._stmt())
             self._match(Tag.SEMI)
 
         self._match(Tag.END)
+        return block
 
-    def _stmt(self) -> None:
+    def _stmt(self) -> Stmt | None:
         if self._look.tag == Tag.BEGIN:
-            self._block()
+            return self._block()
         elif self._look.tag in (Tag.INT, Tag.REAL, Tag.BOOL):
-            self._decl()
+            return self._decl()
         elif self._look.tag == Tag.ID:
-            self._assign()
+            return self._assign()
         elif self._look.tag == Tag.IF:
-            self._if_stmt()
+            return self._if_stmt()
         elif self._look.tag == Tag.WRITE:
-            self._write_stmt()
+            return self._write_stmt()
         else:
             self._error(err="Comando inválido")
 
-    def _decl(self) -> None:
-        self._move()
-        self._match(Tag.ID)
+        return None
 
-    def _assign(self) -> None:
-        self._match(Tag.ID)
+    def _decl(self) -> Stmt:
+        _type = self._move()
+        token_id = self._match(Tag.ID)
+
+        _id = Id(_op=token_id, _type=_type.tag)
+        return Decl(_id=_id)
+
+    def _assign(self) -> Stmt:
+        _token = self._match(Tag.ID)
+        _id = Id(_op=_token, _type=None)
+
         self._match(Tag.ASSIGN)
-        self._expr()
+        _expr = self._expr()
+        return Assign(_id=_id, _expr=_expr)
 
-    def _expr(self) -> None:
-        self._rel()
+    def _expr(self) -> Expr:
+        _expr = self._rel()
         while self._look.tag == Tag.OR:
             self._move()
-            self._rel()
+            _expr = Or(e1=_expr, e2=self._rel())
 
-    def _rel(self) -> None:
-        self._arith()
+        return _expr
+
+    def _rel(self) -> Expr:
+        _expr = self._arith()
         while self._look.tag in (Tag.LT, Tag.LE, Tag.GT):
-            self._move()
-            self._arith()
+            _op = self._move()
+            _expr = Rel(_op=_op, e1=_expr, e2=self._arith())
 
-    def _arith(self) -> None:
-        self._term()
+        return _expr
+
+    def _arith(self) -> Expr:
+        _expr = self._term()
         while self._look.tag in (Tag.SUM, Tag.SUB):
-            self._move()
-            self._term()
+            _op = self._move()
+            _expr = Bin(_op=_op, e1=_expr, e2=self._term())
 
-    def _term(self) -> None:
-        self._factor()
+        return _expr
+
+    def _term(self) -> Expr:
+        _expr = self._factor()
         while self._look.tag == Tag.MUL:
-            self._move()
-            self._factor()
+            _op = self._move()
+            _expr = Bin(_op=_op, e1=_expr, e2=self._factor())
 
-    def _factor(self) -> None:
+        return _expr
+
+    def _factor(self) -> Expr | None:
+        _expr = None
+
         if self._look.tag == Tag.LPAREN:
             self._move()
-            self._expr()
+            _expr = self._expr()
             self._match(Tag.RPAREN)
-
         elif self._look.tag in (Tag.LIT_INT, Tag.LIT_REAL, Tag.TRUE, Tag.FALSE):
-            self._move()
+            _type = Tag(self._look.tag)
+            _expr = Literal(_op=self._move(), _type=_type)
         elif self._look.tag == Tag.ID:
-            self._match(Tag.ID)
+            _token = self._match(Tag.ID)
+            _expr = Id(_op=_token, _type=None)
         else:
             self._error(err="Expressão inválida")
 
-    def _if_stmt(self) -> None:
+        return _expr
+
+    def _if_stmt(self) -> Stmt:
         self._match(Tag.IF)
         self._match(Tag.LPAREN)
-        self._expr()
-        self._match(Tag.RPAREN)
-        self._stmt()
 
-    def _write_stmt(self) -> None:
+        _expr = self._expr()
+        self._match(Tag.RPAREN)
+        _stmt = self._stmt()
+
+        return If(_expr=_expr, _stmt=_stmt)
+
+    def _write_stmt(self) -> Stmt:
         self._move()
         self._match(Tag.LPAREN)
-        self._match(Tag.ID)
+
+        _token = self._match(Tag.ID)
+        _id = Id(_op=_token, _type=None)
+
         self._match(Tag.RPAREN)
+        return Write(_id=_id)
