@@ -38,3 +38,18 @@ class Tag(Enum):
     UNK = "UNK"
     DOT = "DOT"
     TEMP = "TEMP"
+
+    def is_int(self) -> bool:
+        return self == Tag.INT
+
+    def is_real(self) -> bool:
+        return self == Tag.REAL
+
+    def is_bool(self) -> bool:
+        return self == Tag.BOOL
+
+    def is_num(self) -> bool:
+        return self.is_int() or self.is_real()
+
+    def is_type(self) -> bool:
+        return self.is_num() or self.is_bool()

@@ -20,6 +20,6 @@ class Node:
         buffer = ""
         for node in self._children.itervalues():
             buffer += f"\n{ident}|--> {node}"
-            buffer += node._str_tree(ident=f"{ident}    ")
+            buffer += node.str_tree(ident=f"{ident}    ")
 
         return buffer

@@ -1,9 +1,13 @@
+from typing import Dict
+
 from lexer.Tag import Tag
 from lexer.Token import Token
 from lexer.Lexer import Lexer
 
-from inter.stmt import Stmt, Assign, Block, Decl, Program, Write, If
+from inter import Node as Stmt
+from inter.stmt import Assign, Block, Decl, Program, Write, If
 from inter.expr import Expr, Literal, Rel, Id, Bin, Or
+from exceptions import DLSemanticError, DLSyntaxError
 
 
 class Parser:
@@ -11,6 +15,7 @@ class Parser:
         self._lexer = lex
         self._look = None
         self._root = None
+        self._table: Dict[str, Id] = {}
         self._move()
 
     def _move(self) -> Token:
@@ -28,6 +33,13 @@ class Parser:
 
         self._error(err="Símbolo inesperado")
         return None
+
+    def _find_id(self, token_id: Token) -> Id | None:
+        _id = self._table.get(token_id.lexeme(), None)
+        if _id is None:
+            self._error(err=f"A variável \"{token_id.lexeme()}\" não foi declarada")
+
+        return _id
 
     def parse_tree(self) -> str:
         return self._root.str_tree()
@@ -72,17 +84,20 @@ class Parser:
 
         return None
 
-    def _decl(self) -> Stmt:
+    def _decl(self) -> Stmt | None:
         _type = self._move()
         token_id = self._match(Tag.ID)
 
-        _id = Id(_op=token_id, _type=_type.tag)
-        return Decl(_id=_id)
+        if self._table.get(token_id.lexeme()) is None:
+            _id = Id(_op=token_id, _type=_type.tag)
+            self._table.update({token_id.lexeme(): _id})
+            return Decl(_id=_id)
+
+        self._error(err=f"A variável \"{token_id.lexeme()}\" já foi declarada")
+        return None
 
     def _assign(self) -> Stmt:
-        _token = self._match(Tag.ID)
-        _id = Id(_op=_token, _type=None)
-
+        _id = self._find_id(token_id=self._match(Tag.ID))
         self._match(Tag.ASSIGN)
         _expr = self._expr()
         return Assign(_id=_id, _expr=_expr)
@@ -91,7 +106,10 @@ class Parser:
         _expr = self._rel()
         while self._look.tag == Tag.OR:
             self._move()
-            _expr = Or(e1=_expr, e2=self._rel())
+            try:
+                _expr = Or(e1=_expr, e2=self._rel())
+            except DLSemanticError as err:
+                self._error(err=err.__str__())
 
         return _expr
 
@@ -130,8 +148,7 @@ class Parser:
             _type = Tag(self._look.tag)
             _expr = Literal(_op=self._move(), _type=_type)
         elif self._look.tag == Tag.ID:
-            _token = self._match(Tag.ID)
-            _expr = Id(_op=_token, _type=None)
+            _expr = self._find_id(token_id=self._match(Tag.ID))
         else:
             self._error(err="Expressão inválida")
 
@@ -151,8 +168,7 @@ class Parser:
         self._move()
         self._match(Tag.LPAREN)
 
-        _token = self._match(Tag.ID)
-        _id = Id(_op=_token, _type=None)
+        _id = self._find_id(token_id=self._match(Tag.ID))
 
         self._match(Tag.RPAREN)
         return Write(_id=_id)
